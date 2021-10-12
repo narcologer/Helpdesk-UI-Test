@@ -1,6 +1,7 @@
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import io.qameta.allure.Step;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,7 +20,7 @@ public class HelpdeskUITest {
 
     private WebDriver driver;
 
-    @Before
+    @BeforeAll
     public void setup() throws IOException {
         // Читаем конфигурационный файл в System.properties
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("config.properties"));
@@ -35,26 +36,42 @@ public class HelpdeskUITest {
     }
 
     @Test
-    public void createTicketTest() throws IOException {
+    public void createTicketTest() throws IOException{
         driver.get(System.getProperty("site.url"));
-        MainPage mainPage = new MainPage();
-        mainPage.goAndCreate();
-
-        TicketsPage ticketsPage=new TicketsPage();
-        ticketsPage.fillAndSubmitForm();
-
+        moveToTicketCreate();
+        fillAndSubmit();
         // ...
         driver.navigate().to(System.getProperty("site.auth"));
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("user.properties"));
+        login();
+        // ...
+        findCreatedTicket();
+    }
+
+    @Step
+    public void moveToTicketCreate(){
+        MainPage mainPage = new MainPage();
+        mainPage.goAndCreate();
+    }
+
+    @Step
+    public void fillAndSubmit(){
+        TicketsPage ticketsPage=new TicketsPage();
+        ticketsPage.fillAndSubmitForm();
+    }
+
+    @Step
+    public void login(){
         LoginPage loginPage = new LoginPage();
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
+    }
 
-        // ...
+    @Step
+    public void findCreatedTicket(){
         Select length = new Select(driver.findElement(By.name("ticketTable_length")));
         length.selectByValue("100");
         WebElement ok=driver.findElement(By.xpath("//*[text()[contains(.,'BANANA')]]"));
-        //Закрываем текущее окно браузера
         driver.close();
-        Assert.assertNotNull(ok);
+        Assertions.assertNotNull(ok);
     }
 }

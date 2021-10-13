@@ -12,7 +12,6 @@ import pages.MainPage;
 import pages.TicketsPage;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HelpdeskUITest {
@@ -36,25 +35,20 @@ public class HelpdeskUITest {
 
     @Test
     public void createTicketTest() throws IOException {
-        driver.get(System.getProperty("site.url"));
-        MainPage mainPage = new MainPage();
+        MainPage mainPage = new MainPage(driver);
         mainPage.goAndCreate();
 
-        TicketsPage ticketsPage=new TicketsPage();
+        TicketsPage ticketsPage=new TicketsPage(driver);
         ticketsPage.fillAndSubmitForm();
 
         // ...
-        driver.navigate().to(System.getProperty("site.auth"));
-        System.getProperties().load(ClassLoader.getSystemResourceAsStream("user.properties"));
-        LoginPage loginPage = new LoginPage();
+        LoginPage loginPage = new LoginPage(driver);
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
 
         // ...
-        Select length = new Select(driver.findElement(By.name("ticketTable_length")));
-        length.selectByValue("100");
-        WebElement ok=driver.findElement(By.xpath("//*[text()[contains(.,'BANANA')]]"));
+        mainPage.finalSearch();
         //Закрываем текущее окно браузера
         driver.close();
-        Assert.assertNotNull(ok);
+        Assert.assertNotNull(mainPage.ok);
     }
 }

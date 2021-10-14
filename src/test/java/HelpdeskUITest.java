@@ -1,3 +1,4 @@
+import io.qameta.allure.Attachment;
 import io.qameta.allure.Step;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,8 +12,14 @@ import pages.AbstractPage;
 import pages.LoginPage;
 import pages.MainPage;
 import pages.TicketsPage;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -48,30 +55,47 @@ public class HelpdeskUITest {
         findCreatedTicket();
     }
 
-    @Step
-    public void moveToTicketCreate(){
+    @Step("Переход на страницу создания тикета")
+    public void moveToTicketCreate() throws IOException {
         MainPage mainPage = new MainPage();
         mainPage.goAndCreate();
+        createScreenshot();
     }
 
-    @Step
-    public void fillAndSubmit(){
+    @Step("Заполнение формы")
+    public void fillAndSubmit() throws IOException {
         TicketsPage ticketsPage=new TicketsPage();
         ticketsPage.fillAndSubmitForm();
+        createScreenshot();
     }
 
-    @Step
-    public void login(){
+    @Step("Вход под админа")
+    public void login() throws IOException {
         LoginPage loginPage = new LoginPage();
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
+        createScreenshot();
     }
 
-    @Step
-    public void findCreatedTicket(){
+    @Step("Поиск в дэшборде созданного тикета")
+    public void findCreatedTicket() throws IOException {
         Select length = new Select(driver.findElement(By.name("ticketTable_length")));
         length.selectByValue("100");
         WebElement ok=driver.findElement(By.xpath("//*[text()[contains(.,'BANANA')]]"));
+        createScreenshot();
         driver.close();
         Assert.assertNotNull(ok);
+    }
+
+    @Attachment
+    private byte[] createScreenshot() throws IOException {
+        final Screenshot screenshot = new AShot()
+                .shootingStrategy(ShootingStrategies.viewportPasting(100))
+                .takeScreenshot(driver);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(screenshot.getImage(),"PNG",baos);
+        baos.flush();
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+        return imageInByte;
     }
 }

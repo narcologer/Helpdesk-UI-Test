@@ -1,11 +1,23 @@
+import io.qameta.allure.Attachment;
+import io.qameta.allure.Step;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import pages.AbstractPage;
-import pages.LoginPage;
+import org.openqa.selenium.support.ui.Select;
+import pages.*;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HelpdeskUITest {
@@ -16,6 +28,7 @@ public class HelpdeskUITest {
     public void setup() throws IOException {
         // Читаем конфигурационный файл в System.properties
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("config.properties"));
+        System.setProperty("webdriver.chrome.driver", "C:\\Windows\\chromedriver_win32\\chromedriver.exe");
         // Создание экземпляра драйвера
         driver = new ChromeDriver();
         // Устанавливаем размер окна браузера, как максимально возможный
@@ -27,18 +40,58 @@ public class HelpdeskUITest {
     }
 
     @Test
-    public void createTicketTest() {
+    public void createTicketTest() throws IOException{
         driver.get(System.getProperty("site.url"));
-
+        moveToTicketCreate();
+        fillAndSubmit();
         // ...
+        driver.navigate().to(System.getProperty("site.auth"));
+        System.getProperties().load(ClassLoader.getSystemResourceAsStream("user.properties"));
+        login();
+        // ...
+        findCreatedTicket();
+    }
 
-        // todo: чтение данных учетной записи пользователя из user.properties в System.properties
-        LoginPage loginPage = new LoginPage();
+    @Step("Переход на страницу создания тикета")
+    public void moveToTicketCreate() throws IOException {
+        MainPage mainPage = new MainPage(driver);
+        mainPage.goAndCreate();
+        createScreenshot();
+    }
+
+    @Step("Заполнение формы")
+    public void fillAndSubmit() throws IOException {
+        TicketsPage ticketsPage=new TicketsPage(driver);
+        ticketsPage.fillAndSubmitForm();
+        createScreenshot();
+    }
+
+    @Step("Вход под админа")
+    public void login() throws IOException {
+        LoginPage loginPage = new LoginPage(driver);
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
+        createScreenshot();
+    }
 
-        // ...
-
-        //Закрываем текущее окно браузера
+    @Step("Поиск в дэшборде созданного тикета")
+    public void findCreatedTicket() throws IOException {
+        DashboardPage dashboardPage = new DashboardPage(driver);
+        dashboardPage.finalSearch();
+        createScreenshot();
         driver.close();
+        Assert.assertNotNull(dashboardPage.ok);
+    }
+
+    @Attachment
+    private byte[] createScreenshot() throws IOException {
+        final Screenshot screenshot = new AShot()
+                .shootingStrategy(ShootingStrategies.viewportPasting(100))
+                .takeScreenshot(driver);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(screenshot.getImage(),"PNG",baos);
+        baos.flush();
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+        return imageInByte;
     }
 }

@@ -1,4 +1,6 @@
 /.idea/
+/.allure/
 /out/
 /target/
 *.iml
+/src/main/resources/

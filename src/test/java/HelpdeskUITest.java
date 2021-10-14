@@ -1,7 +1,7 @@
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -20,7 +20,7 @@ public class HelpdeskUITest {
 
     private WebDriver driver;
 
-    @BeforeAll
+    @Before
     public void setup() throws IOException {
         // Читаем конфигурационный файл в System.properties
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("config.properties"));
@@ -72,6 +72,6 @@ public class HelpdeskUITest {
         length.selectByValue("100");
         WebElement ok=driver.findElement(By.xpath("//*[text()[contains(.,'BANANA')]]"));
         driver.close();
-        Assertions.assertNotNull(ok);
+        Assert.assertNotNull(ok);
     }
 }

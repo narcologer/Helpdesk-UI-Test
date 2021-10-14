@@ -8,10 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
-import pages.AbstractPage;
-import pages.LoginPage;
-import pages.MainPage;
-import pages.TicketsPage;
+import pages.*;
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
@@ -57,33 +54,32 @@ public class HelpdeskUITest {
 
     @Step("Переход на страницу создания тикета")
     public void moveToTicketCreate() throws IOException {
-        MainPage mainPage = new MainPage();
+        MainPage mainPage = new MainPage(driver);
         mainPage.goAndCreate();
         createScreenshot();
     }
 
     @Step("Заполнение формы")
     public void fillAndSubmit() throws IOException {
-        TicketsPage ticketsPage=new TicketsPage();
+        TicketsPage ticketsPage=new TicketsPage(driver);
         ticketsPage.fillAndSubmitForm();
         createScreenshot();
     }
 
     @Step("Вход под админа")
     public void login() throws IOException {
-        LoginPage loginPage = new LoginPage();
+        LoginPage loginPage = new LoginPage(driver);
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
         createScreenshot();
     }
 
     @Step("Поиск в дэшборде созданного тикета")
     public void findCreatedTicket() throws IOException {
-        Select length = new Select(driver.findElement(By.name("ticketTable_length")));
-        length.selectByValue("100");
-        WebElement ok=driver.findElement(By.xpath("//*[text()[contains(.,'BANANA')]]"));
+        DashboardPage dashboardPage = new DashboardPage(driver);
+        dashboardPage.finalSearch();
         createScreenshot();
         driver.close();
-        Assert.assertNotNull(ok);
+        Assert.assertNotNull(dashboardPage.ok);
     }
 
     @Attachment

@@ -1,9 +1,15 @@
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
 import pages.AbstractPage;
 import pages.LoginPage;
+import pages.MainPage;
+import pages.TicketsPage;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -27,17 +33,20 @@ public class HelpdeskUITest {
     }
 
     @Test
-    public void createTicketTest() {
-        driver.get(System.getProperty("site.url"));
+    public void createTicketTest() throws IOException {
+        MainPage mainPage = new MainPage(driver);
+        mainPage.goAndCreate();
+
+        TicketsPage ticketsPage=new TicketsPage(driver);
+        ticketsPage.fillAndSubmitForm();
 
         // ...
-
-        // todo: чтение данных учетной записи пользователя из user.properties в System.properties
-        LoginPage loginPage = new LoginPage();
+        LoginPage loginPage = new LoginPage(driver);
         loginPage.login(System.getProperty("user"), System.getProperty("password"));
 
         // ...
-
+        mainPage.finalSearch();
+        Assert.assertTrue(mainPage.isElementPresent("//*[text()[contains(.,'"+System.getProperty("title.ticket")+"')]]"));
         //Закрываем текущее окно браузера
         driver.close();
     }

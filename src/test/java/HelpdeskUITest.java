@@ -22,7 +22,6 @@ public class HelpdeskUITest {
     public void setup() throws IOException {
         // Читаем конфигурационный файл в System.properties
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("config.properties"));
-        System.setProperty("webdriver.chrome.driver", "C:\\Windows\\chromedriver_win32\\chromedriver.exe");
         // Создание экземпляра драйвера
         driver = new ChromeDriver();
         // Устанавливаем размер окна браузера, как максимально возможный
@@ -47,8 +46,8 @@ public class HelpdeskUITest {
 
         // ...
         mainPage.finalSearch();
+        Assert.assertTrue(mainPage.isElementPresent("//*[text()[contains(.,'"+System.getProperty("title.ticket")+"')]]"));
         //Закрываем текущее окно браузера
         driver.close();
-        Assert.assertNotNull(mainPage.ok);
     }
 }
